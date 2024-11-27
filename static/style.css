@@ -1,0 +1,119 @@
+body { 
+    font-family: Arial, sans-serif;
+    background-color: #FFF4E6;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200vh;
+}
+
+h1 {
+    color: #f1af40; /* Couleur principale */
+    font-size: 2rem;
+    margin-bottom: 20px;
+}
+
+.form-container, .validation-container {
+    background: #FFFFFF;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+    width: 100%;
+    text-align: center;
+    margin: 20px;
+}
+
+input[type="text"], input[type="date"], input[type="email"], input[type="file"] {
+    width: 100%;
+    padding: 12px;
+    margin: 15px 0;
+    border: 1px solid #f1af40; /* Couleur principale */
+    border-radius: 10px;
+    background-color: #FFF8F0;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-size: 1rem;
+    color: #333;
+}
+
+input[type="file"]::file-selector-button {
+    background-color: #f1af40; /* Couleur principale */
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+input[type="file"]::file-selector-button:hover {
+    background-color: #e89c38; /* Légèrement plus foncé */
+}
+
+button, .btn {
+    background-color: #f1af40; /* Couleur principale */
+    color: #fff;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+button:hover, .btn:hover {
+    background-color: #e89c38; /* Légèrement plus foncé */
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+ul li {
+    margin: 10px 0;
+    font-size: 1rem;
+    color: #555;
+}
+
+.photo-preview {
+    max-width: 200px;
+    max-height: 200px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-top: 10px;
+}
+
+.validation-container p {
+    font-size: 1rem;
+    color: #666;
+    margin: 10px 0;
+}
+
+.validation-container strong {
+    color: #f1af40; /* Couleur principale */
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .form-container, .validation-container {
+        padding: 20px;
+    }
+
+    h1 {
+        font-size: 1.8rem;
+    }
+
+    button, .btn {
+        font-size: 0.9rem;
+        padding: 10px 15px;
+    }
+
+    input[type="text"], input[type="date"], input[type="email"], input[type="file"] {
+        font-size: 0.9rem;
+        padding: 10px;
+    }
+}

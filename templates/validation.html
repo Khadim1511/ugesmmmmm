@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Validation de l'inscription</title>  
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="validation-container">
+        <h1>Inscription réussie !</h1>
+        <p>Merci, <strong>{{ nom_prenom }}</strong>, pour votre inscription.</p>
+        <ul class="details">
+            <li><strong>Date de naissance :</strong> {{ date_naissance }}</li>
+            <li><strong>Année d'arrivée :</strong> {{ annee_arrivee }}</li>
+            <li><strong>Email :</strong> {{ email }}</li>
+            <li><strong>Établissement :</strong> {{ etablissement }}</li>
+            <li><strong>Filière :</strong> {{ filiere }}</li>
+            <li><strong>Code étudiant :</strong> {{ student_code }}</li>
+        </ul>
+
+        {% if photo %}
+        <p>Photo téléchargée :</p>
+        <img src="{{ url_for('static', filename='uploads/' + photo) }}" alt="Photo de l'utilisateur" class="profile-photo">
+        {% else %}
+        <p>Aucune photo n'a été téléchargée.</p>
+        {% endif %}
+
+        <a href="/" class="btn">Retour au formulaire</a>
+    </div>
+</body>
+</html>
