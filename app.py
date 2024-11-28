@@ -4,6 +4,11 @@ from psycopg2.extras import RealDictCursor
 import os
 from dotenv import load_dotenv
 
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
+
+
 # Charger les variables d'environnement
 load_dotenv()
 
@@ -74,15 +79,7 @@ def submit():
     cursor.close()
     conn.close()
 
-    return render_template('validation.html', 
-                           nom_prenom=nom_prenom, 
-                           date_naissance=date_naissance, 
-                           annee_arrivee=annee_arrivee, 
-                           email=email, 
-                           etablissement=etablissement, 
-                           filiere=filiere, 
-                           student_code=student_code, 
-                           photo=photo_filename)
+    return render_template('validation.html',nom_prenom=nom_prenom,date_naissance=date_naissance,annee_arrivee=annee_arrivee,email=email,etablissement=etablissement,filiere=filiere,student_code=student_code,photo=photo_filename)
 
 # Route pour afficher tous les utilisateurs
 @app.route('/users')
