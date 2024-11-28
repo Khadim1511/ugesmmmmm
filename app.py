@@ -2,8 +2,6 @@ from flask import Flask, render_template, request, redirect, url_for
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import os
-import random
-import string
 from dotenv import load_dotenv
 
 # Charger les variables d'environnement
@@ -12,7 +10,8 @@ load_dotenv()
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 
-DATABASE_URL = os.getenv("DATABASE_URL")
+# Configuration de la base de données PostgreSQL
+DATABASE_URL = os.getenv('DATABASE_URL')  # Correctement récupérer l'URL
 
 # Fonction pour obtenir une connexion à la base de données
 def get_db_connection():
@@ -41,11 +40,6 @@ def create_database():
 
 create_database()
 
-# Fonction pour générer un code étudiant unique
-def generate_student_code():
-    code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
-    return code
-
 # Route pour afficher le formulaire
 @app.route('/')
 def index():
@@ -60,14 +54,16 @@ def submit():
     email = request.form['email']
     etablissement = request.form['etablissement']
     filiere = request.form['filiere']
-    student_code = generate_student_code()
-
+    student_code = request.form['student_code']
+    
+    # Gérer le téléchargement de la photo
     photo = request.files['photo']
     photo_filename = None
     if photo:
         photo_filename = f"{nom_prenom.replace(' ', '_')}_{photo.filename}"
         photo.save(os.path.join(app.config['UPLOAD_FOLDER'], photo_filename))
 
+    # Insérer dans la base de données PostgreSQL
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute('''
@@ -86,4 +82,18 @@ def submit():
                            etablissement=etablissement, 
                            filiere=filiere, 
                            student_code=student_code, 
- 
+                           photo=photo_filename)
+
+# Route pour afficher tous les utilisateurs
+@app.route('/users')
+def users():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM users")
+    users = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return render_template('users.html', users=users)
+
+if __name__ == '__main__':
+    app.run(debug=True)
