@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulaire d'inscription</title>  
+    <title>Formulaire d'inscription</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <div class="form-container">
+<div class="form-container">
         <img src="{{ url_for('static', filename='ugesm.png') }}" alt="ugesm" style="width: 30%; height: auto;">
         <h1>FORMULAIRE DE RECENSEMENT</h1>
+
     <form action="/" method="POST" enctype="multipart/form-data">
         <label for="nom_prenom">Nom et Prénom :</label>
         <input type="text" id="nom_prenom" name="nom_prenom" required><br>
@@ -34,5 +35,12 @@
 
         <button type="submit">S'inscrire</button>
     </form>
+</div>
 </body>
 </html>
+
+    <title>Formulaire d'inscription</title>  
+    
+</head>
+<body>
+    
