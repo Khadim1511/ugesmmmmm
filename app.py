@@ -1,96 +1,71 @@
 from flask import Flask, render_template, request, redirect, url_for
-import psycopg2
-from psycopg2.extras import RealDictCursor
+import sqlite3
 import os
-from dotenv import load_dotenv
+import uuid
 
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
-
-
-# Charger les variables d'environnement
-load_dotenv()
-
+# Configuration de l'application Flask
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 
-# Configuration de la base de données PostgreSQL
-DATABASE_URL = os.getenv('DATABASE_URL')  # Correctement récupérer l'URL
-
-# Fonction pour obtenir une connexion à la base de données
-def get_db_connection():
-    return psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
-
-# Créer la table si elle n'existe pas
-def create_database():
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS users (
-            id SERIAL PRIMARY KEY,
-            nom_prenom TEXT NOT NULL,
-            date_naissance TEXT NOT NULL,
-            annee_arrivee TEXT NOT NULL,
-            email TEXT NOT NULL,
-            etablissement TEXT NOT NULL,
-            filiere TEXT NOT NULL,
-            student_code TEXT NOT NULL UNIQUE,
-            photo TEXT
-        )
-    ''')
-    conn.commit()
-    cursor.close()
-    conn.close()
-
-create_database()
-
-# Route pour afficher le formulaire
-@app.route('/')
+# Route : formulaire d'inscription
+@app.route('/', methods=['GET', 'POST'])
 def index():
+    if request.method == 'POST':
+        # Récupération des données du formulaire
+        nom_prenom = request.form['nom_prenom']
+        date_naissance = request.form['date_naissance']
+        annee_arrivee = request.form['annee_arrivee']
+        email = request.form['email']
+        etablissement = request.form['etablissement']
+        filiere = request.form['filiere']
+
+        # Génération automatique d'un code étudiant unique
+        student_code = f"ETU-{uuid.uuid4().hex[:6].upper()}"
+
+        # Gestion du fichier photo téléchargé
+        photo = request.files['photo']
+        photo_filename = None
+        if photo and photo.filename != '':
+            photo_filename = student_code + '_' + photo.filename
+            photo.save(os.path.join(app.config['UPLOAD_FOLDER'], photo_filename))
+
+        # Insertion dans la base de données
+        conn = sqlite3.connect('users.db')
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO users (nom_prenom, date_naissance, annee_arrivee, email, etablissement, filiere, student_code, photo)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (nom_prenom, date_naissance, annee_arrivee, email, etablissement, filiere, student_code, photo_filename))
+        conn.commit()
+        conn.close()
+
+        # Passer les données à la page de validation
+        return render_template('validation.html', 
+                               nom_prenom=nom_prenom,
+                               date_naissance=date_naissance,
+                               annee_arrivee=annee_arrivee,
+                               email=email,
+                               etablissement=etablissement,
+                               filiere=filiere,
+                               student_code=student_code,
+                               photo=photo_filename)
     return render_template('form.html')
 
-# Route pour traiter le formulaire
-@app.route('/submit', methods=['POST'])
-def submit():
-    nom_prenom = request.form['nom_prenom']
-    date_naissance = request.form['date_naissance']
-    annee_arrivee = request.form['annee_arrivee']
-    email = request.form['email']
-    etablissement = request.form['etablissement']
-    filiere = request.form['filiere']
-    student_code = request.form['student_code']
-    
-    # Gérer le téléchargement de la photo
-    photo = request.files['photo']
-    photo_filename = None
-    if photo:
-        photo_filename = f"{nom_prenom.replace(' ', '_')}_{photo.filename}"
-        photo.save(os.path.join(app.config['UPLOAD_FOLDER'], photo_filename))
 
-    # Insérer dans la base de données PostgreSQL
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute('''
-        INSERT INTO users (nom_prenom, date_naissance, annee_arrivee, email, etablissement, filiere, student_code, photo)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-    ''', (nom_prenom, date_naissance, annee_arrivee, email, etablissement, filiere, student_code, photo_filename))
-    conn.commit()
-    cursor.close()
-    conn.close()
-
-    return render_template('validation.html',nom_prenom=nom_prenom,date_naissance=date_naissance,annee_arrivee=annee_arrivee,email=email,etablissement=etablissement,filiere=filiere,student_code=student_code,photo=photo_filename)
-
-# Route pour afficher tous les utilisateurs
+# Route : liste des utilisateurs
 @app.route('/users')
 def users():
-    conn = get_db_connection()
+    # Connexion à la base de données
+    conn = sqlite3.connect('users.db')
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM users")
+    cursor.execute('SELECT * FROM users')
     users = cursor.fetchall()
-    cursor.close()
     conn.close()
     return render_template('users.html', users=users)
 
+
 if __name__ == '__main__':
+    # Crée le dossier d'uploads si nécessaire
+    if not os.path.exists(app.config['UPLOAD_FOLDER']):
+        os.makedirs(app.config['UPLOAD_FOLDER'])
     app.run(debug=True)
